@@ -98,7 +98,7 @@ def set_counter_value(name, value):
         value = int(value)  # Convert value to an integer
     except ValueError:
         return jsonify({"error": "Invalid counter value"}), HTTPStatus.BAD_REQUEST
-    if value <= 0:
+    if value < 0:
         return jsonify({"error": "Counter value cannot be negative"}), HTTPStatus.BAD_REQUEST
     COUNTERS[name] = value
     return jsonify({name: COUNTERS[name]}), HTTPStatus.OK
