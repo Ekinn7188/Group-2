@@ -180,7 +180,12 @@ class TestCounterEndpoints:
         assert response_zero.status_code == HTTPStatus.OK  
         assert response_negative.status_code == HTTPStatus.BAD_REQUEST  
         
-        # TODO: Add an assertion to verify the response message contains a clear error
+        # Verify the response message contains a clear error for the negative test
+        json_response = response_negative.get_json()
+        assert "error" in json_response, "Error response requires an \"error\" field."
+        error_message = json_response["error"].lower()
+        assert "counter" in error_message, "Error response requires a clear error message."
+        assert "negative" in error_message, "Error response requires a clear error message."
 
     # ===========================
     # Test: Reset a single counter
@@ -277,3 +282,13 @@ class TestCounterEndpoints:
         assert response.status_code == HTTPStatus.BAD_REQUEST
 
         # TODO: Add an assertion to verify the error message specifically says 'Invalid counter name'S
+
+    def test_top_n_none_available(self, client):
+        """It should return an error when the top GET request is called with no counters available."""
+        client.post('/counters/reset')
+        response = client.get('/counters/top/10')
+        assert response.status_code == HTTPStatus.NOT_FOUND
+
+        # Verify the response message contains an error
+        json_response = response.get_json()
+        assert "error" in json_response, "Error response requires an \"error\" field."
